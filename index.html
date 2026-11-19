@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bubble's Tummy Trek – Digestive System Game</title>
+<meta name="description" content="An interactive game about the anatomy and physiology of the human digestive system, with Bubble the Maltese.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--coral:#ff7a59;--coral-d:#e85d3c;--teal:#1fa392;--teal-l:#d7f5ef;--sun:#ffd166;--pink:#ff6fa5;--ink:#3a2e39;--muted:#7a6a73;--card:#fff;--ok:#22c55e;--bad:#ef4444}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Nunito',system-ui,sans-serif;color:var(--ink);background:linear-gradient(160deg,#fff1e0 0%,#ffeef3 45%,#e3faf4 100%);min-height:100vh;-webkit-tap-highlight-color:transparent}
+h1,h2,h3,.btn,.pill,.logo{font-family:'Baloo 2','Nunito',sans-serif}
+button{font:inherit;color:inherit}
+header{display:flex;align-items:center;gap:10px;padding:8px 16px;background:rgba(255,255,255,.75);backdrop-filter:blur(8px);position:sticky;top:0;z-index:20;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.logo{font-weight:800;font-size:1.25rem;color:var(--coral-d);display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap}
+.logo small{color:var(--teal);font-weight:700}
+.spacer{flex:1}
+.pill{background:#fff;border-radius:999px;padding:4px 12px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.08);white-space:nowrap}
+.iconbtn{border:none;background:#fff;border-radius:50%;width:38px;height:38px;font-size:1.1rem;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+main{max-width:1080px;margin:0 auto;padding:16px}
+.btn{border:none;border-radius:14px;padding:10px 20px;font-size:1.05rem;font-weight:700;cursor:pointer;background:var(--coral);color:#fff;box-shadow:0 4px 0 var(--coral-d);transition:transform .1s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--coral-d)}
+.btn.teal{background:var(--teal);box-shadow:0 4px 0 #157a6d}
+.btn.ghost{background:#fff;color:var(--ink);box-shadow:0 4px 0 #e2d6dc}
+.btn:disabled{opacity:.5;cursor:default}
+.card{background:var(--card);border-radius:22px;padding:18px;box-shadow:0 8px 24px rgba(90,40,60,.08)}
+/* Home */
+.hero{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.hero h1{margin:0;font-size:clamp(2rem,5vw,3.2rem);line-height:1;color:var(--coral-d)}
+.hero h1 span{color:var(--teal)}
+.hero p.sub{margin:6px 0 10px;font-weight:700;color:var(--muted)}
+.bubble-big{width:150px;height:150px;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px) rotate(-3deg)}}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+input.name{border:2px solid #f1dfe6;border-radius:12px;padding:10px 14px;font:inherit;font-weight:700;min-width:220px;outline:none}
+input.name:focus{border-color:var(--teal)}
+.langsw{display:inline-flex;background:#fff;border-radius:12px;padding:3px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.langsw button{border:none;background:none;padding:7px 12px;border-radius:9px;font-weight:800;cursor:pointer}
+.langsw button.on{background:var(--teal);color:#fff}
+.levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:18px}
+.lvcard{position:relative;cursor:pointer;transition:transform .15s;border:3px solid transparent}
+.lvcard:hover{transform:translateY(-4px);border-color:var(--sun)}
+.lvcard .emo{font-size:2.4rem}
+.lvcard h3{margin:4px 0 2px;font-size:1.3rem}
+.lvcard p{margin:0 0 8px;color:var(--muted);font-weight:600}
+.lvcard .num{position:absolute;top:12px;right:14px;background:var(--teal-l);color:var(--teal);border-radius:999px;padding:2px 10px;font-weight:800;font-family:'Baloo 2','Nunito',system-ui,sans-serif}
+.stars{font-size:1.2rem;letter-spacing:2px}
+.say{display:flex;gap:10px;align-items:flex-start;margin-bottom:12px}
+.say svg{width:64px;height:64px;flex:none}
+.say .txt{position:relative;background:#fff8e7;border:2px solid #ffe3a3;border-radius:16px;padding:10px 14px;font-weight:600;line-height:1.45}
+.say .txt:before{content:"";position:absolute;left:-10px;top:18px;border:8px solid transparent;border-right-color:#ffe3a3}
+/* Level layout */
+.lvhead{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.lvhead h2{margin:0;font-size:1.6rem}
+.split{display:grid;grid-template-columns:minmax(260px,400px) 1fr;gap:18px;align-items:start}
+.diagwrap{background:#fff;border-radius:22px;padding:8px;box-shadow:0 8px 24px rgba(90,40,60,.08);position:sticky;top:66px}
+.diagram{width:100%;height:auto;display:block;max-height:76vh}
+.prompt{background:var(--teal);color:#fff;border-radius:16px;padding:10px 16px;font-family:'Baloo 2','Nunito',system-ui,sans-serif;font-size:1.35rem;font-weight:700;margin-bottom:12px;text-align:center}
+.prompt b{color:var(--sun);font-size:1.6rem}
+@media(max-width:760px){.split{grid-template-columns:1fr}.diagwrap{position:static}.diagram{max-height:46vh}.hero{grid-template-columns:1fr;text-align:center}.hero .row{justify-content:center}.bubble-big{margin:0 auto;width:120px;height:120px}.logo small{display:none}}
+/* organs */
+.organ{cursor:pointer;transition:filter .2s}
+.organ .vis{transition:filter .25s}
+.organ:hover .vis{filter:brightness(1.1) drop-shadow(0 0 4px #ffd166)}
+.organ.glow .vis{filter:drop-shadow(0 0 5px #ffb703) drop-shadow(0 0 9px #ffd166)}
+.organ.ok .vis{filter:drop-shadow(0 0 5px #22c55e) drop-shadow(0 0 10px #22c55e)}
+.organ.bad{animation:shake .4s}
+.organ.bad .vis{filter:drop-shadow(0 0 6px #ef4444)}
+.organ.dim{opacity:.35}
+.organ,.organ *{transform-box:fill-box;transform-origin:center}
+@keyframes shake{20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 14px}
+.chip{background:#f6eff3;border-radius:999px;padding:5px 11px;font-weight:700;font-size:.92rem;cursor:pointer;border:2px solid transparent}
+.chip.seen{background:var(--teal-l);color:#127a6c}
+.chip.cur{border-color:var(--sun)}
+.infobox h3{margin:0 0 6px;color:var(--coral-d);font-size:1.4rem}
+.infobox p{margin:0;line-height:1.5;font-weight:600}
+/* quiz */
+.q{font-weight:800;font-size:1.15rem;margin:0 0 12px;line-height:1.4}
+.opts{display:grid;gap:9px}
+.opt{text-align:left;border:2px solid #efe2e8;background:#fff;border-radius:14px;padding:11px 14px;font-weight:700;cursor:pointer;transition:all .15s;font-size:1rem}
+.opt:hover:not(:disabled){border-color:var(--teal);background:#f3fcfa}
+.opt.right{background:#dcfce7;border-color:var(--ok)}
+.opt.wrong{background:#fee2e2;border-color:var(--bad)}
+.opt:disabled{cursor:default}
+.ex{margin-top:12px;background:#f0f7ff;border-left:5px solid #60a5fa;border-radius:10px;padding:10px 12px;font-weight:600;line-height:1.45}
+.ex.good{background:#ecfdf5;border-color:var(--ok)}
+.ex.nope{background:#fff1f2;border-color:var(--bad)}
+.meter{display:grid;gap:7px;margin-top:12px}
+.meter .m{display:grid;grid-template-columns:110px 1fr 42px;align-items:center;gap:8px;font-weight:700;font-size:.9rem}
+.bar{height:14px;background:#f1e7ec;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:99px;transition:width 1.2s ease}
+.foods{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+.food{font-size:2.4rem;background:#fff;border:3px solid #f1dfe6;border-radius:18px;padding:8px 14px;cursor:pointer;text-align:center}
+.food small{display:block;font-size:.8rem;font-weight:800}
+.food:hover{border-color:var(--coral)}
+.stepper{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.stepper span{flex:1;min-width:30px;height:8px;border-radius:9px;background:#f1e3ea}
+.stepper span.done{background:var(--teal)}
+.stepper span.now{background:var(--sun)}
+/* match */
+.match{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.col{display:grid;gap:9px;align-content:start}
+.mbtn{border:2px solid #efe2e8;background:#fff;border-radius:14px;padding:12px;font-weight:700;cursor:pointer;min-height:54px;transition:all .15s;line-height:1.3}
+.mbtn.left{background:#fff7ed;border-color:#fed7aa}
+.mbtn.sel{border-color:var(--teal);box-shadow:0 0 0 3px #99f6e4;transform:scale(1.02)}
+.mbtn.done{background:#dcfce7;border-color:var(--ok);opacity:.75;cursor:default}
+.mbtn.err{background:#fee2e2;border-color:var(--bad);animation:shake .35s}
+/* timer */
+.timer{height:12px;background:#f1e7ec;border-radius:99px;overflow:hidden;margin:6px 0 14px}
+.timer i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--sun),var(--coral));width:100%}
+.streak{font-family:'Baloo 2','Nunito',system-ui,sans-serif;font-weight:800;color:var(--coral-d)}
+/* modal */
+#modal{position:fixed;inset:0;background:rgba(58,46,57,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+#modal.show{display:flex}
+#modal .card{max-width:440px;width:100%;text-align:center;animation:pop .35s ease}
+@keyframes pop{from{transform:scale(.7);opacity:0}}
+#modal h2{margin:4px 0;font-size:1.9rem;color:var(--coral-d)}
+#modal .bigstars{font-size:2.6rem;letter-spacing:4px}
+/* certificate */
+.cert{max-width:720px;margin:0 auto;text-align:center;border:6px double var(--sun);background:linear-gradient(#fffdf7,#fff)}
+.cert h1{font-size:2.2rem;margin:4px 0;color:var(--coral-d)}
+.cert .who{font-family:'Baloo 2','Nunito',system-ui,sans-serif;font-size:2.2rem;font-weight:800;color:var(--teal);border-bottom:2px dashed #e7d8de;display:inline-block;padding:0 20px;margin:4px 0 8px}
+.cert table{margin:12px auto;border-collapse:collapse;font-weight:700}
+.cert td{padding:5px 12px;border-bottom:1px solid #f3e8ed;text-align:left}
+.rank{font-family:'Baloo 2','Nunito',system-ui,sans-serif;font-size:1.6rem;font-weight:800;color:var(--coral-d)}
+/* confetti */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+#fx i{position:absolute;top:-20px;width:10px;height:14px;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.float{position:absolute;font-family:'Baloo 2','Nunito',system-ui,sans-serif;font-weight:800;color:var(--ok);font-size:1.6rem;animation:up 1s ease-out forwards}
+@keyframes up{to{transform:translateY(-60px);opacity:0}}
+footer{text-align:center;color:var(--muted);font-size:.85rem;padding:20px 10px 30px;font-weight:600}
+@media print{header,footer,.noprint{display:none!important}body{background:#fff}.cert{box-shadow:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" id="logo">🐶 <span id="logoTxt">Tummy Trek</span> <small id="logoSub"></small></div>
+  <div class="spacer"></div>
+  <div class="pill" id="totalPill">⭐ 0</div>
+  <button class="iconbtn" id="soundBtn" title="Sound">🔊</button>
+  <button class="iconbtn" id="homeBtn" title="Menu">🏠</button>
+</header>
+<main id="app"></main>
+<footer id="foot"></footer>
+<div id="modal"></div>
+<div id="fx"></div>
+
+<script>
+/* ============ helpers ============ */
+const $ = s => document.querySelector(s);
+const app = $('#app');
+let lang = 'en', muted = false, playerName = '';
+const tx = (en, id) => lang === 'id' ? id : en;
+const L = o => (o && (o[lang] || o.en)) || '';
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const starStr = n => '⭐'.repeat(n) + '☆'.repeat(3 - n);
+let store = { best: {} };
+try { const s = JSON.parse(localStorage.getItem('tummytrek')); if (s) store = Object.assign(store, s); } catch (e) {}
+lang = store.lang || 'en'; playerName = store.name || ''; muted = !!store.muted;
+function persist() { try { store.lang = lang; store.name = playerName; store.muted = muted; localStorage.setItem('tummytrek', JSON.stringify(store)); } catch (e) {} }
+
+/* ============ sound ============ */
+let actx;
+function tone(f, d, type = 'sine', t0 = 0, vol = .14) {
+  if (muted) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type; o.frequency.value = f;
+    const t = actx.currentTime + t0;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.001, t + d);
+    o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + d + .03);
+  } catch (e) {}
+}
+const sfx = {
+  ok() { tone(660, .12, 'triangle'); tone(990, .2, 'triangle', .1); },
+  bad() { tone(220, .25, 'sawtooth', 0, .06); tone(160, .3, 'sawtooth', .12, .05); },
+  click() { tone(520, .05, 'square', 0, .04); },
+  win() { [523, 659, 784, 1047].forEach((f, i) => tone(f, .25, 'triangle', i * .13)); },
+  gulp() { tone(320, .12); tone(190, .2, 'sine', .1); },
+  pop() { tone(880, .06, 'sine', 0, .08); }
+};
+
+/* ============ visual helpers ============ */
+function bubbleSVG(cls = '') {
+  return `<svg class="${cls}" viewBox="0 0 120 120" aria-label="Bubble the Maltese">
+  <ellipse cx="60" cy="112" rx="32" ry="5" fill="rgba(0,0,0,.08)"/>
+  <path d="M36 78 Q60 114 84 78 L90 106 Q60 116 30 106Z" fill="#fff" stroke="#eadfd6" stroke-width="2"/>
+  <circle cx="60" cy="55" r="30" fill="#fff" stroke="#eadfd6" stroke-width="2"/>
+  <path d="M30 42 Q12 70 20 102 Q33 109 40 94 Q44 70 41 46Z" fill="#fff" stroke="#eadfd6" stroke-width="2"/>
+  <path d="M90 42 Q108 70 100 102 Q87 109 80 94 Q76 70 79 46Z" fill="#fff" stroke="#eadfd6" stroke-width="2"/>
+  <path d="M25 70 Q28 85 26 96 M95 70 Q92 85 94 96" stroke="#efe6de" stroke-width="2" fill="none"/>
+  <path d="M48 30 Q60 12 72 30" fill="#fff" stroke="#eadfd6" stroke-width="2"/>
+  <path d="M60 27 L45 18 L47 34Z M60 27 L75 18 L73 34Z" fill="#ff6fa5"/><circle cx="60" cy="27" r="4.5" fill="#ff4f8b"/>
+  <circle cx="49" cy="52" r="5.2" fill="#2b1d1d"/><circle cx="71" cy="52" r="5.2" fill="#2b1d1d"/>
+  <circle cx="50.8" cy="50.3" r="1.7" fill="#fff"/><circle cx="72.8" cy="50.3" r="1.7" fill="#fff"/>
+  <ellipse cx="60" cy="66" rx="11" ry="8" fill="#fffaf4"/>
+  <ellipse cx="60" cy="62" rx="4.6" ry="3.6" fill="#2b1d1d"/>
+  <path d="M54 68 Q60 73 66 68" stroke="#2b1d1d" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <path d="M57.5 70 Q60 79 62.5 70Z" fill="#ff8fa3"/>
+  <circle cx="42" cy="64" r="4" fill="#ffc1d3" opacity=".75"/><circle cx="78" cy="64" r="4" fill="#ffc1d3" opacity=".75"/>
+  </svg>`;
+}
+const say = t => `<div class="say">${bubbleSVG()}<div class="txt">${t}</div></div>`;
+
+function confetti(n = 70) {
+  const fx = $('#fx'), cols = ['#ff7a59', '#1fa392', '#ffd166', '#ff6fa5', '#60a5fa', '#a78bfa'];
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('i');
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = cols[i % cols.length];
+    c.style.animationDuration = (1.6 + Math.random() * 1.6) + 's';
+    c.style.animationDelay = (Math.random() * .4) + 's';
+    fx.appendChild(c); setTimeout(() => c.remove(), 3600);
+  }
+}
+function floatText(el, text) {
+  const r = el.getBoundingClientRect(), f = document.createElement('div');
+  f.className = 'float'; f.textContent = text;
+  f.style.left = (r.left + r.width / 2 - 20) + 'px'; f.style.top = (r.top) + 'px'; f.style.position = 'fixed';
+  $('#fx').appendChild(f); setTimeout(() => f.remove(), 1000);
+}
+const isNarrow = () => window.matchMedia('(max-width:760px)').matches;
+function scrollToEl(el) { if (isNarrow() && el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+
+/* ============ DATA: organs ============ */
+const ORG = [
+  { id: 'mouth', n: { en: 'Mouth', id: 'Mulut' }, e: '👄',
+    i: { en: "Digestion starts here! Teeth chew food into small pieces (mechanical digestion) and the enzyme amylase in saliva starts breaking starch into sugar (chemical digestion). The tongue rolls food into a soft ball called a bolus.",
+         id: "Pencernaan dimulai di sini! Gigi mengunyah makanan menjadi potongan kecil (pencernaan mekanis) dan enzim amilase dalam ludah mulai memecah amilum menjadi gula (pencernaan kimiawi). Lidah membentuk makanan menjadi gumpalan lunak yang disebut bolus." } },
+  { id: 'esophagus', n: { en: 'Esophagus', id: 'Kerongkongan' }, e: '🛝',
+    i: { en: "A muscular tube about 25 cm long that connects the mouth to the stomach. Waves of muscle squeezing, called peristalsis, push food down. No digestion happens here!",
+         id: "Saluran berotot sepanjang sekitar 25 cm yang menghubungkan mulut dengan lambung. Gelombang remasan otot yang disebut gerak peristaltik mendorong makanan ke bawah. Di sini tidak terjadi pencernaan!" } },
+  { id: 'stomach', n: { en: 'Stomach', id: 'Lambung' }, e: '🫃',
+    i: { en: "A stretchy, J-shaped muscular bag. It churns food with gastric juice: hydrochloric acid (HCl) kills germs and the enzyme pepsin starts digesting protein. Food becomes a thick soup called chyme.",
+         id: "Kantong berotot berbentuk huruf J yang elastis. Lambung mengaduk makanan dengan getah lambung: asam klorida (HCl) membunuh kuman dan enzim pepsin mulai mencerna protein. Makanan menjadi bubur kental yang disebut kimus." } },
+  { id: 'liver', n: { en: 'Liver', id: 'Hati' }, e: '🟤',
+    i: { en: "The largest internal organ! It makes bile, a green-yellow liquid that breaks fat into tiny droplets (emulsification), so enzymes can digest fat more easily. It is an accessory organ — food never passes through it.",
+         id: "Organ dalam terbesar! Hati menghasilkan empedu, cairan hijau kekuningan yang memecah lemak menjadi butiran kecil (emulsi) agar enzim lebih mudah mencerna lemak. Hati adalah organ tambahan — makanan tidak melewatinya." } },
+  { id: 'gallbladder', n: { en: 'Gallbladder', id: 'Kantong empedu' }, e: '🟢',
+    i: { en: "A small green pouch tucked under the liver. It stores bile and squirts it into the small intestine when fatty food arrives.",
+         id: "Kantong kecil berwarna hijau di bawah hati. Kantong empedu menyimpan empedu dan mengalirkannya ke usus halus saat makanan berlemak datang." } },
+  { id: 'pancreas', n: { en: 'Pancreas', id: 'Pankreas' }, e: '🟡',
+    i: { en: "A leaf-shaped gland behind the stomach. It makes pancreatic juice full of enzymes — amylase (for starch), trypsin (for protein) and lipase (for fat) — and sends it into the small intestine.",
+         id: "Kelenjar berbentuk seperti daun di belakang lambung. Pankreas menghasilkan getah pankreas yang berisi enzim — amilase (untuk amilum), tripsin (untuk protein), dan lipase (untuk lemak) — lalu mengalirkannya ke usus halus." } },
+  { id: 'smallInt', n: { en: 'Small intestine', id: 'Usus halus' }, e: '🍝',
+    i: { en: "About 6 metres long — the longest part! Digestion is finished here and nutrients are absorbed into the blood through millions of tiny finger-like villi.",
+         id: "Panjangnya sekitar 6 meter — bagian terpanjang! Di sini pencernaan diselesaikan dan sari makanan diserap ke dalam darah melalui jutaan jonjot usus (vili) yang kecil seperti jari." } },
+  { id: 'largeInt', n: { en: 'Large intestine', id: 'Usus besar' }, e: '🌀',
+    i: { en: "About 1.5 m long and wider than the small intestine. It absorbs water and minerals, and its friendly bacteria make vitamin K. Leftovers become solid feces.",
+         id: "Panjangnya sekitar 1,5 m dan lebih lebar daripada usus halus. Usus besar menyerap air dan mineral, dan bakteri baiknya menghasilkan vitamin K. Sisa makanan menjadi feses yang padat." } },
+  { id: 'rectum', n: { en: 'Rectum', id: 'Rektum' }, e: '📦',
+    i: { en: "The last part of the large intestine. It stores feces until you are ready to go to the toilet.",
+         id: "Bagian akhir usus besar. Rektum menyimpan feses sampai kamu siap pergi ke toilet." } },
+  { id: 'anus', n: { en: 'Anus', id: 'Anus' }, e: '🚪',
+    i: { en: "The exit! A ring of muscle called a sphincter controls when feces leave the body. This is called egestion (defecation).",
+         id: "Pintu keluar! Cincin otot yang disebut sfingter mengatur kapan feses keluar dari tubuh. Proses ini disebut defekasi (egesti)." } }
+];
+const orgById = id => ORG.find(o => o.id === id);
+
+/* ============ diagram ============ */
+function diagramSVG() {
+  const og = (id, inner) => `<g class="organ" data-id="${id}">${inner}</g>`;
+  return `<svg class="diagram" viewBox="0 0 300 470" xmlns="http://www.w3.org/2000/svg">
+  <path d="M70 142 Q70 120 102 118 L198 118 Q230 120 230 142 L238 400 Q238 440 200 446 L100 446 Q62 440 62 400 Z" fill="#ffe4cf" stroke="#f3c9a8" stroke-width="2"/>
+  <rect x="133" y="90" width="34" height="36" rx="8" fill="#ffe4cf"/>
+  <circle cx="150" cy="56" r="42" fill="#ffe4cf" stroke="#f3c9a8" stroke-width="2"/>
+  <path d="M110 44 Q115 10 150 12 Q188 10 191 46 Q178 30 150 30 Q122 30 110 44Z" fill="#4a3428"/>
+  <circle cx="135" cy="54" r="4" fill="#3b2a20"/><circle cx="165" cy="54" r="4" fill="#3b2a20"/>
+  <circle cx="125" cy="68" r="5" fill="#ffb4b4" opacity=".6"/><circle cx="175" cy="68" r="5" fill="#ffb4b4" opacity=".6"/>
+  ${og('liver', `<path class="vis" d="M76 176 Q120 158 180 170 Q184 196 160 212 Q120 234 82 224 Q68 200 76 176 Z" fill="#a0523d" stroke="#7d3b2a" stroke-width="2"/>`)}
+  ${og('gallbladder', `<circle cx="140" cy="224" r="14" fill="transparent"/><ellipse class="vis" cx="140" cy="223" rx="9" ry="7" fill="#57b84a" stroke="#3d8a33" stroke-width="2"/>`)}
+  ${og('smallInt', `<path d="M160 254 C135 262 130 290 150 305 C180 310 196 318 185 330 C170 342 120 330 118 345 C116 360 190 352 192 366 C194 380 130 372 122 382 L104 390" fill="none" stroke="transparent" stroke-width="26" pointer-events="stroke"/>
+     <path class="vis" d="M160 254 C135 262 130 290 150 305 C180 310 196 318 185 330 C170 342 120 330 118 345 C116 360 190 352 192 366 C194 380 130 372 122 382 L104 390" fill="none" stroke="#f59bb0" stroke-width="12" stroke-linecap="round"/>`)}
+  ${og('stomach', `<path class="vis" d="M160 188 Q174 176 196 181 Q230 190 227 222 Q223 254 192 259 Q170 262 158 250 Q168 241 182 239 Q199 235 199 220 Q197 203 180 201 Q167 200 160 188 Z" fill="#f48c8c" stroke="#d96464" stroke-width="2"/>`)}
+  ${og('pancreas', `<path class="vis" d="M150 265 Q182 256 224 261 Q229 270 219 275 Q185 278 152 277 Q143 272 150 265 Z" fill="#f7cd6b" stroke="#d9a935" stroke-width="2"/>`)}
+  ${og('largeInt', `<path d="M100 396 L92 302 Q92 288 106 288 L200 288 Q214 288 214 302 L214 376 Q214 396 190 399 Q166 401 153 405" fill="none" stroke="transparent" stroke-width="28" pointer-events="stroke"/>
+     <path class="vis" d="M100 396 L92 302 Q92 288 106 288 L200 288 Q214 288 214 302 L214 376 Q214 396 190 399 Q166 401 153 405" fill="none" stroke="#c99a6e" stroke-width="18" stroke-linecap="round" stroke-dasharray="1 0"/>`)}
+  ${og('rectum', `<path d="M152 404 L152 424" stroke="transparent" stroke-width="26" pointer-events="stroke"/><path class="vis" d="M152 404 L152 424" stroke="#a9734f" stroke-width="15" stroke-linecap="round"/>`)}
+  ${og('anus', `<circle cx="152" cy="436" r="13" fill="transparent"/><circle class="vis" cx="152" cy="436" r="6" fill="#6e4231"/>`)}
+  ${og('esophagus', `<path d="M150 84 C150 120 152 150 161 192" fill="none" stroke="transparent" stroke-width="22" pointer-events="stroke"/><path class="vis" d="M150 84 C150 120 152 150 161 192" fill="none" stroke="#e79a9a" stroke-width="9" stroke-linecap="round"/>`)}
+  ${og('mouth', `<ellipse cx="150" cy="78" rx="24" ry="14" fill="transparent"/><path class="vis" d="M136 74 Q150 90 164 74 Q150 79 136 74Z" fill="#d9475a" stroke="#b02f42" stroke-width="2"/>`)}
+  <text id="food" x="150" y="78" text-anchor="middle" dominant-baseline="central" font-size="0" style="pointer-events:none">🍛</text>
+  </svg>`;
+}
+function bindOrgans(svg, handler) {
+  svg.querySelectorAll('.organ').forEach(g => g.addEventListener('click', e => { e.stopPropagation(); handler(g.dataset.id, g); }));
+}
+function flash(g, cls, ms = 700) { g.classList.remove(cls); void g.getBBox(); g.classList.add(cls); setTimeout(() => g.classList.remove(cls), ms); }
+
+/* ============ level completion & saving ============ */
+const LEVELS = [
+  { n: 1, emo: '🔍', t: { en: 'Organ Explorer', id: 'Penjelajah Organ' }, d: { en: 'Meet every organ, then find them in a speed hunt!', id: 'Kenali setiap organ, lalu temukan dalam perburuan kilat!' }, start: () => startL1() },
+  { n: 2, emo: '🍛', t: { en: 'Journey of a Bite', id: 'Perjalanan Sesuap Makanan' }, d: { en: 'Ride along with your food from mouth to anus.', id: 'Ikuti perjalanan makananmu dari mulut sampai anus.' }, start: () => startL2() },
+  { n: 3, emo: '🧪', t: { en: 'Enzyme Lab', id: 'Lab Enzim' }, d: { en: 'Match enzymes, organs and teeth to their jobs.', id: 'Pasangkan enzim, organ, dan gigi dengan tugasnya.' }, start: () => startL3() },
+  { n: 4, emo: '⚡', t: { en: 'Trivia Blitz', id: 'Kuis Kilat' }, d: { en: 'Weird and wonderful gut facts. Keep your streak alive!', id: 'Fakta unik seputar pencernaan. Pertahankan rentetan jawaban benarmu!' }, start: () => startL4() }
+];
+function totalScore() { return Object.values(store.best).reduce((s, b) => s + (b.score || 0), 0); }
+function totalStars() { return Object.values(store.best).reduce((s, b) => s + (b.stars || 0), 0); }
+function updateHeader() {
+  $('#logoTxt').textContent = tx("Bubble's Tummy Trek", 'Petualangan Perut Bubble');
+  $('#logoSub').textContent = tx('· digestive system', '· sistem pencernaan');
+  $('#totalPill').textContent = '⭐ ' + totalStars() + '/12 · ' + totalScore();
+  $('#soundBtn').textContent = muted ? '🔇' : '🔊';
+  $('#foot').textContent = tx("Bubble's Tummy Trek · A science game about the human digestive system", 'Petualangan Perut Bubble · Game IPA tentang sistem pencernaan manusia');
+  document.documentElement.lang = lang;
+}
+function starsFrom(frac) { return frac >= .9 ? 3 : frac >= .6 ? 2 : 1; }
+function levelComplete(n, score, stars, line) {
+  const prev = store.best[n] || { score: 0, stars: 0 };
+  const isBest = score > prev.score;
+  store.best[n] = { score: Math.max(score, prev.score), stars: Math.max(stars, prev.stars) };
+  persist(); updateHeader(); sfx.win(); if (stars >= 2) confetti();
+  const msgs = [, tx('Good start! Try again for more stars.', 'Awal yang bagus! Coba lagi untuk dapat lebih banyak bintang.'), tx('Great job! Your gut knowledge is growing!', 'Kerja bagus! Pengetahuan pencernaanmu makin bertambah!'), tx('PERFECT! Woof woof! You are a digestion star! 🌟', 'SEMPURNA! Guk guk! Kamu bintang pencernaan! 🌟')];
+  const next = LEVELS[n];
+  const m = $('#modal');
+  m.innerHTML = `<div class="card">${bubbleSVG('bubble-big')}
+    <h2>${tx('Level complete!', 'Level selesai!')}</h2>
+    <div class="bigstars">${starStr(stars)}</div>
+    <p style="font-weight:800;font-size:1.2rem;margin:6px 0">${tx('Score', 'Skor')}: ${score} ${isBest ? '· 🏅 ' + tx('New best!', 'Rekor baru!') : ''}</p>
+    ${line ? `<p style="font-weight:700;color:var(--muted);margin:4px 0">${line}</p>` : ''}
+    <p style="font-weight:600">${msgs[stars]}</p>
+    <div class="row" style="justify-content:center;margin-top:10px">
+      <button class="btn ghost" id="mAgain">↻ ${tx('Play again', 'Main lagi')}</button>
+      ${next ? `<button class="btn teal" id="mNext">${tx('Next level', 'Level berikutnya')} →</button>` : `<button class="btn teal" id="mCert">🏆 ${tx('My certificate', 'Sertifikatku')}</button>`}
+      <button class="btn ghost" id="mMenu">🏠 ${tx('Menu', 'Menu')}</button>
+    </div></div>`;
+  m.classList.add('show');
+  const close = () => m.classList.remove('show');
+  $('#mAgain').onclick = () => { close(); LEVELS[n - 1].start(); };
+  $('#mMenu').onclick = () => { close(); renderHome(); };
+  if (next) $('#mNext').onclick = () => { close(); next.start(); };
+  else $('#mCert').onclick = () => { close(); renderCert(); };
+}
+
+/* ============ HOME ============ */
+function renderHome() {
+  updateHeader(); window.scrollTo(0, 0);
+  app.innerHTML = `
+  <div class="card hero">
+    ${bubbleSVG('bubble-big')}
+    <div>
+      <h1>${tx("Bubble's <span>Tummy Trek</span>", 'Petualangan <span>Perut Bubble</span>')}</h1>
+      <p class="sub">${tx('An adventure through the human digestive system 🍛 ➜ 🫃 ➜ 💩', 'Petualangan menjelajahi sistem pencernaan manusia 🍛 ➜ 🫃 ➜ 💩')}</p>
+      ${say(tx("Woof! I'm Bubble! I just ate a BIG lunch… want to find out where all that food goes? Let's explore the digestive system together!", 'Guk! Aku Bubble! Aku baru saja makan siang yang BANYAK… mau tahu ke mana semua makanan itu pergi? Ayo jelajahi sistem pencernaan bersama!'))}
+      <div class="row">
+        <input class="name" id="nameIn" maxlength="30" placeholder="${tx('Type your name', 'Ketik namamu')}" value="${playerName.replace(/"/g, '&quot;')}">
+        <div class="langsw"><button data-l="en" class="${lang === 'en' ? 'on' : ''}">🇬🇧 EN</button><button data-l="id" class="${lang === 'id' ? 'on' : ''}">🇮🇩 ID</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="levels">
+    ${LEVELS.map(l => { const b = store.best[l.n]; return `
+      <div class="card lvcard" data-n="${l.n}">
+        <span class="num">${tx('Level', 'Level')} ${l.n}</span>
+        <div class="emo">${l.emo}</div>
+        <h3>${L(l.t)}</h3>
+        <p>${L(l.d)}</p>
+        <div class="row" style="justify-content:space-between"><span class="stars">${b ? starStr(b.stars) : '☆☆☆'}</span><span class="btn" style="padding:6px 16px">${b ? tx('Replay', 'Ulangi') : tx('Play', 'Main')} ▶</span></div>
+        ${b ? `<small style="font-weight:700;color:var(--muted)">${tx('Best', 'Terbaik')}: ${b.score}</small>` : ''}
+      </div>`; }).join('')}
+  </div>
+  <div class="row noprint" style="justify-content:center;margin-top:18px">
+    <button class="btn teal" id="certBtn" ${Object.keys(store.best).length ? '' : 'disabled'}>🏆 ${tx('My certificate', 'Sertifikatku')}</button>
+  </div>`;
+  const ni = $('#nameIn');
+  ni.oninput = () => { playerName = ni.value.trim(); persist(); };
+  app.querySelectorAll('.langsw button').forEach(b => b.onclick = () => { lang = b.dataset.l; persist(); renderHome(); });
+  app.querySelectorAll('.lvcard').forEach(c => c.onclick = () => { sfx.click(); LEVELS[c.dataset.n - 1].start(); });
+  $('#certBtn').onclick = renderCert;
+}
+
+/* ============ LEVEL 1: Organ Explorer ============ */
+function startL1() {
+  window.scrollTo(0, 0);
+  let phase = 'explore', seen = new Set(), queue = [], cur = null, tries = 0, score = 0, firstTry = 0, lock = false;
+  app.innerHTML = `<div class="lvhead"><h2>🔍 ${tx('Level 1 · Organ Explorer', 'Level 1 · Penjelajah Organ')}</h2><div class="spacer"></div><div class="pill" id="sc">${tx('Score', 'Skor')}: 0</div></div>
+    <div id="prompt"></div>
+    <div class="split"><div class="diagwrap">${diagramSVG()}</div><div class="card" id="side"></div></div>`;
+  const svg = app.querySelector('svg'), side = $('#side'), prompt = $('#prompt');
+  const G = id => svg.querySelector(`.organ[data-id="${id}"]`);
+
+  function explore(id) {
+    const o = id && orgById(id);
+    side.innerHTML = (o ? `<div class="infobox"><h3>${o.e} ${L(o.n)}</h3><p>${L(o.i)}</p></div>`
+      : say(tx("<b>Step 1: Explore!</b> Tap each organ on the body (or the name buttons) to learn what it does. When you've met all 10, start the speed hunt!", '<b>Langkah 1: Jelajahi!</b> Ketuk setiap organ di tubuh (atau tombol nama) untuk mempelajari fungsinya. Setelah mengenal 10 organ, mulai perburuan kilat!')))
+      + `<div class="chips">${ORG.map(x => `<span class="chip ${seen.has(x.id) ? 'seen' : ''} ${x.id === id ? 'cur' : ''}" data-id="${x.id}">${seen.has(x.id) ? '✅' : '❔'} ${L(x.n)}</span>`).join('')}</div>
+      <p style="font-weight:800">${tx('Organs met', 'Organ dikenal')}: ${seen.size}/10</p>
+      <button class="btn ${seen.size === 10 ? 'teal' : 'ghost'}" id="huntBtn">${seen.size === 10 ? tx('Start the speed hunt! 🏁', 'Mulai perburuan kilat! 🏁') : tx('Skip to the hunt →', 'Langsung ke perburuan →')}</button>`;
+    side.querySelectorAll('.chip').forEach(c => c.onclick = () => pick(c.dataset.id));
+    $('#huntBtn').onclick = startHunt;
+  }
+  function pick(id) {
+    if (phase === 'explore') {
+      sfx.pop(); const first = !seen.has(id); seen.add(id);
+      svg.querySelectorAll('.organ').forEach(g => g.classList.remove('glow')); G(id).classList.add('glow');
+      explore(id); if (first && seen.size === 10) { sfx.win(); }
+      if (isNarrow()) scrollToEl(side);
+    } else hunt(id);
+  }
+  function startHunt() {
+    phase = 'hunt'; queue = shuffle(ORG.map(o => o.id));
+    svg.querySelectorAll('.organ').forEach(g => g.classList.remove('glow'));
+    side.innerHTML = say(tx('<b>Step 2: Speed hunt!</b> I will name an organ — tap it on the body. First try = 100 points!', '<b>Langkah 2: Perburuan kilat!</b> Aku akan menyebut nama organ — ketuk organ itu di tubuh. Benar di percobaan pertama = 100 poin!'));
+    nextTarget();
+  }
+  function nextTarget() {
+    if (!queue.length) {
+      prompt.innerHTML = '';
+      const stars = starsFrom(score / 1000);
+      return levelComplete(1, score, stars, tx(`Found on first try: ${firstTry}/10`, `Ditemukan di percobaan pertama: ${firstTry}/10`));
+    }
+    cur = queue.shift(); tries = 0; lock = false;
+    prompt.innerHTML = `<div class="prompt">${tx('Find the', 'Temukan')}: <b>${L(orgById(cur).n)}</b> · ${10 - queue.length}/10</div>`;
+  }
+  function hunt(id) {
+    if (lock) return;
+    const g = G(id);
+    if (id === cur) {
+      lock = true; const pts = [100, 60, 30][Math.min(tries, 2)]; score += pts; if (!tries) firstTry++;
+      sfx.ok(); g.classList.add('ok'); floatText(g, '+' + pts);
+      $('#sc').textContent = tx('Score', 'Skor') + ': ' + score;
+      const o = orgById(id);
+      side.innerHTML = `<div class="ex good"><b>✅ ${tx('Yes! That\'s the', 'Ya! Itu')} ${L(o.n).toLowerCase()}!</b><br>${L(o.i)}</div>`;
+      setTimeout(() => { g.classList.remove('ok'); nextTarget(); }, 1500);
+    } else {
+      tries++; sfx.bad(); flash(g, 'bad', 600);
+      side.innerHTML = `<div class="ex nope"><b>❌ ${tx('Oops! That\'s the', 'Ups! Itu')} ${L(orgById(id).n).toLowerCase()}.</b> ${tx('Try again!', 'Coba lagi!')}</div>`;
+      if (tries >= 3) { const t = G(cur); t.classList.add('glow'); setTimeout(() => t.classList.remove('glow'), 1500); side.innerHTML += `<p style="font-weight:700">💡 ${tx('Hint: look at the glowing organ!', 'Petunjuk: lihat organ yang bersinar!')}</p>`; }
+    }
+  }
+  bindOrgans(svg, pick);
+  explore(null);
+}
+
+/* ============ LEVEL 2: Journey of a Bite ============ */
+const JP = [[150,78,'mouth'],[150,92],[151,120,'esophagus'],[153,150],[157,175],[162,192],[180,198],[200,212],[205,232,'stomach'],[190,248],[165,252],[145,265],[138,290],[155,305],[185,318],[180,332,'smallInt'],[140,336],[118,345],[140,357],[190,364],[170,377],[125,380],[102,390],[96,340],[92,300],[104,288],[150,288,'largeInt'],[200,288],[214,300],[214,340],[214,375],[195,396],[155,404],[152,415,'rectum'],[152,436],[152,470]];
+const Q = (qen, qid, opts, exen, exid) => ({ q: { en: qen, id: qid }, a: opts.map(o => ({ en: o[0], id: o[1] })), ex: { en: exen, id: exid } }); // first option is correct
+const STATIONS = [
+  { key: 'mouth', org: ['mouth'], n: { en: 'Mouth', id: 'Mulut' }, size: 30, meter: { carb: 20 },
+    t: { en: "Chomp chomp! 🦷 Your teeth cut and grind the food (mechanical digestion). Saliva makes it wet, and the enzyme amylase starts turning starch into sugar (chemical digestion). Your tongue rolls everything into a soft ball called a <b>bolus</b>.",
+         id: "Nyam nyam! 🦷 Gigi memotong dan menggiling makanan (pencernaan mekanis). Air ludah membasahinya, dan enzim amilase mulai mengubah amilum menjadi gula (pencernaan kimiawi). Lidah menggulung semuanya menjadi gumpalan lunak yang disebut <b>bolus</b>." },
+    qs: [Q('Chewing food into smaller pieces is an example of…', 'Mengunyah makanan menjadi potongan kecil adalah contoh…',
+          [['Mechanical digestion', 'Pencernaan mekanis'], ['Chemical digestion', 'Pencernaan kimiawi'], ['Absorption', 'Penyerapan (absorpsi)'], ['Egestion', 'Defekasi']],
+          'Chewing breaks food physically into smaller pieces — no new substances are made. That is mechanical digestion.', 'Mengunyah memecah makanan secara fisik menjadi potongan lebih kecil — tidak terbentuk zat baru. Itulah pencernaan mekanis.'),
+         Q('Which enzyme in saliva starts digesting starch?', 'Enzim apa dalam ludah yang mulai mencerna amilum?',
+          [['Amylase (ptyalin)', 'Amilase (ptialin)'], ['Pepsin', 'Pepsin'], ['Lipase', 'Lipase'], ['Trypsin', 'Tripsin']],
+          'Salivary amylase breaks starch into maltose, a sugar. Chew rice for a long time and it starts to taste sweet!', 'Amilase ludah memecah amilum menjadi maltosa (gula). Kunyah nasi lama-lama, rasanya jadi manis!')] },
+  { key: 'esophagus', org: ['esophagus'], n: { en: 'Esophagus', id: 'Kerongkongan' }, size: 26, meter: {},
+    t: { en: "Gulp! When you swallow, a little flap called the <b>epiglottis</b> covers your windpipe so food doesn't go the wrong way. Then the esophagus squeezes the bolus down in waves — that's <b>peristalsis</b>!",
+         id: "Glek! Saat menelan, katup kecil bernama <b>epiglotis</b> menutup batang tenggorok (trakea) agar makanan tidak salah jalan. Lalu kerongkongan meremas bolus ke bawah dengan gerakan bergelombang — itulah <b>gerak peristaltik</b>!" },
+    qs: [Q('What pushes food down the esophagus?', 'Apa yang mendorong makanan turun melalui kerongkongan?',
+          [['Peristalsis (waves of muscle)', 'Gerak peristaltik (gelombang otot)'], ['Only gravity', 'Hanya gravitasi'], ['Bile', 'Empedu'], ['Villi', 'Vili']],
+          'Peristalsis is a wave of muscle contractions. It works even if you are upside down!', 'Gerak peristaltik adalah gelombang kontraksi otot. Gerakan ini tetap bekerja walaupun kamu dalam posisi terbalik!'),
+         Q('Which flap stops food from entering your windpipe when you swallow?', 'Katup apa yang mencegah makanan masuk ke batang tenggorok saat menelan?',
+          [['Epiglottis', 'Epiglotis'], ['Uvula', 'Uvula (anak tekak)'], ['Diaphragm', 'Diafragma'], ['Pyloric sphincter', 'Sfingter pilorus']],
+          'The epiglottis closes over the windpipe (trachea) when you swallow. That is why you cannot breathe and swallow at the same time.', 'Epiglotis menutup trakea saat kamu menelan. Itu sebabnya kamu tidak bisa bernapas dan menelan pada saat yang sama.')] },
+  { key: 'stomach', org: ['stomach'], n: { en: 'Stomach', id: 'Lambung' }, size: 24, meter: { protein: 40 },
+    t: { en: "Splash! The stomach's strong muscles churn the food for 2–4 hours. Gastric juice contains <b>hydrochloric acid (HCl)</b>, which kills germs, and <b>pepsin</b>, which starts digesting protein. The food turns into a thick soup called <b>chyme</b>.",
+         id: "Byur! Otot lambung yang kuat mengaduk makanan selama 2–4 jam. Getah lambung mengandung <b>asam klorida (HCl)</b> yang membunuh kuman, dan <b>pepsin</b> yang mulai mencerna protein. Makanan berubah menjadi bubur kental yang disebut <b>kimus</b>." },
+    qs: [Q('What is the job of hydrochloric acid (HCl) in the stomach?', 'Apa fungsi asam klorida (HCl) di lambung?',
+          [['Kills germs and activates pepsin', 'Membunuh kuman dan mengaktifkan pepsin'], ['Absorbs water', 'Menyerap air'], ['Digests fat', 'Mencerna lemak'], ['Makes bile', 'Menghasilkan empedu']],
+          'HCl makes the stomach very acidic (about pH 2). This kills most germs in food and switches on pepsin.', 'HCl membuat lambung sangat asam (sekitar pH 2). Ini membunuh sebagian besar kuman dalam makanan dan mengaktifkan pepsin.'),
+         Q('Pepsin in the stomach starts digesting…', 'Pepsin di lambung mulai mencerna…',
+          [['Protein', 'Protein'], ['Starch', 'Amilum'], ['Fat', 'Lemak'], ['Fibre', 'Serat']],
+          'Pepsin breaks long protein chains into shorter pieces (peptides). Digestion of protein is finished later in the small intestine.', 'Pepsin memecah protein menjadi pepton (rantai yang lebih pendek). Pencernaan protein diselesaikan nanti di usus halus.')] },
+  { key: 'smallInt', org: ['smallInt', 'liver', 'gallbladder', 'pancreas'], n: { en: 'Small intestine', id: 'Usus halus' }, size: 18, meter: { carb: 100, protein: 100, fat: 100 },
+    t: { en: "Welcome to the longest part — about 6 metres! The <b>liver</b> sends bile (stored in the <b>gallbladder</b>) to break fat into tiny droplets, and the <b>pancreas</b> adds enzymes for starch, protein and fat. Digestion finishes here, and millions of <b>villi</b> absorb the nutrients into the blood.",
+         id: "Selamat datang di bagian terpanjang — sekitar 6 meter! <b>Hati</b> mengirim empedu (yang disimpan di <b>kantong empedu</b>) untuk memecah lemak menjadi butiran kecil, dan <b>pankreas</b> menambahkan enzim untuk amilum, protein, dan lemak. Pencernaan selesai di sini, dan jutaan <b>vili</b> menyerap sari makanan ke dalam darah." },
+    qs: [Q('Where does bile come from?', 'Dari mana empedu berasal?',
+          [['Made in the liver, stored in the gallbladder', 'Dibuat di hati, disimpan di kantong empedu'], ['Made in the stomach', 'Dibuat di lambung'], ['Made in the pancreas', 'Dibuat di pankreas'], ['Made in the salivary glands', 'Dibuat di kelenjar ludah']],
+          'Bile is made in the liver, stored in the gallbladder, then released into the small intestine. It has no enzymes — it emulsifies fat.', 'Empedu dibuat di hati, disimpan di kantong empedu, lalu dialirkan ke usus halus. Empedu tidak mengandung enzim — ia mengemulsikan lemak.'),
+         Q('What do villi do?', 'Apa fungsi vili (jonjot usus)?',
+          [['Increase surface area to absorb nutrients', 'Memperluas permukaan untuk menyerap sari makanan'], ['Push food back up', 'Mendorong makanan kembali ke atas'], ['Make stomach acid', 'Menghasilkan asam lambung'], ['Store feces', 'Menyimpan feses']],
+          'Villi are tiny finger-like folds. They make the surface area huge, so nutrients are absorbed quickly into the blood.', 'Vili adalah lipatan kecil seperti jari. Vili memperluas permukaan sehingga sari makanan cepat diserap ke dalam darah.')] },
+  { key: 'largeInt', org: ['largeInt'], n: { en: 'Large intestine', id: 'Usus besar' }, size: 20, poop: true, meter: { water: 90 },
+    t: { en: "Almost done! What's left is mostly water, fibre and things your body can't digest. The large intestine soaks up <b>water and minerals</b>, and trillions of friendly <b>bacteria</b> help make vitamin K. The leftovers slowly become solid <b>feces</b>.",
+         id: "Hampir selesai! Yang tersisa sebagian besar air, serat, dan zat yang tidak bisa dicerna. Usus besar menyerap <b>air dan mineral</b>, dan triliunan <b>bakteri</b> baik membantu membuat vitamin K. Sisa makanan perlahan menjadi <b>feses</b> yang padat." },
+    qs: [Q('The main job of the large intestine is to absorb…', 'Fungsi utama usus besar adalah menyerap…',
+          [['Water', 'Air'], ['Protein', 'Protein'], ['Fat', 'Lemak'], ['Starch', 'Amilum']],
+          'The large intestine absorbs water. Too little absorbed → diarrhea; too much absorbed → constipation.', 'Usus besar menyerap air. Terlalu sedikit air yang diserap → diare; terlalu banyak → sembelit (konstipasi).'),
+         Q('Friendly bacteria in the large intestine help make…', 'Bakteri baik di usus besar membantu menghasilkan…',
+          [['Vitamin K', 'Vitamin K'], ['Bile', 'Empedu'], ['Pepsin', 'Pepsin'], ['Saliva', 'Air ludah']],
+          'Bacteria such as E. coli in the large intestine make vitamin K, which helps blood to clot.', 'Bakteri seperti E. coli di usus besar menghasilkan vitamin K, yang membantu pembekuan darah.')] },
+  { key: 'rectum', org: ['rectum', 'anus'], n: { en: 'Rectum & anus', id: 'Rektum & anus' }, size: 20, poop: true, meter: {},
+    t: { en: "Last stop! The <b>rectum</b> stores the feces until you're ready. Then a ring of muscle at the <b>anus</b> (the sphincter) relaxes and the waste leaves your body. This is called <b>egestion</b> (defecation).",
+         id: "Pemberhentian terakhir! <b>Rektum</b> menyimpan feses sampai kamu siap. Lalu cincin otot di <b>anus</b> (sfingter) mengendur dan sisa makanan keluar dari tubuh. Proses ini disebut <b>defekasi</b> (egesti)." },
+    qs: [Q('Getting rid of undigested waste from the body is called…', 'Pengeluaran sisa makanan yang tidak tercerna dari tubuh disebut…',
+          [['Egestion (defecation)', 'Defekasi (egesti)'], ['Ingestion', 'Ingesti'], ['Absorption', 'Absorpsi'], ['Digestion', 'Digesti']],
+          'Ingestion = taking food in. Egestion (defecation) = getting rid of undigested waste.', 'Ingesti = memasukkan makanan. Defekasi (egesti) = mengeluarkan sisa makanan yang tidak tercerna.'),
+         Q('Which is the correct path of food?', 'Manakah urutan perjalanan makanan yang benar?',
+          [['Mouth → esophagus → stomach → small intestine → large intestine → anus', 'Mulut → kerongkongan → lambung → usus halus → usus besar → anus'],
+           ['Mouth → stomach → esophagus → small intestine → large intestine → anus', 'Mulut → lambung → kerongkongan → usus halus → usus besar → anus'],
+           ['Mouth → esophagus → stomach → large intestine → small intestine → anus', 'Mulut → kerongkongan → lambung → usus besar → usus halus → anus'],
+           ['Mouth → liver → stomach → small intestine → anus', 'Mulut → hati → lambung → usus halus → anus']],
+          'The liver, gallbladder and pancreas help digestion, but food never passes through them — they are accessory organs.', 'Hati, kantong empedu, dan pankreas membantu pencernaan, tetapi makanan tidak melewatinya — organ-organ itu adalah organ tambahan.')] }
+];
+const FOODS = [['🍛', 'Nasi goreng', 'Nasi goreng'], ['🍔', 'Burger', 'Burger'], ['🍜', 'Noodles', 'Mi ayam'], ['🍌', 'Banana', 'Pisang']];
+
+function startL2() {
+  window.scrollTo(0, 0);
+  let si = 0, pos = 0, score = 0, correct = 0, food = '🍛', meter = { carb: 0, protein: 0, fat: 0, water: 0 };
+  app.innerHTML = `<div class="lvhead"><h2>🍛 ${tx('Level 2 · Journey of a Bite', 'Level 2 · Perjalanan Sesuap Makanan')}</h2><div class="spacer"></div><div class="pill" id="sc">${tx('Score', 'Skor')}: 0</div></div>
+    <div class="stepper" id="stepper">${STATIONS.map(() => '<span></span>').join('')}</div>
+    <div class="split"><div class="diagwrap">${diagramSVG()}
+      <div class="meter" id="meter" style="padding:0 8px 8px"></div></div><div class="card" id="side"></div></div>`;
+  const svg = app.querySelector('svg'), side = $('#side'), foodEl = svg.querySelector('#food');
+  const MB = [['carb', tx('Carbohydrate', 'Karbohidrat'), '#f59e0b'], ['protein', 'Protein', '#ef4444'], ['fat', tx('Fat', 'Lemak'), '#eab308'], ['water', tx('Water absorbed', 'Air diserap'), '#3b82f6']];
+  $('#meter').innerHTML = `<b style="font-size:.9rem">${tx('Digestion meter', 'Meteran pencernaan')}</b>` + MB.map(m => `<div class="m"><span>${m[1]}</span><div class="bar"><i id="mb-${m[0]}" style="background:${m[2]}"></i></div><span id="mv-${m[0]}">0%</span></div>`).join('');
+  function drawMeter() { MB.forEach(m => { $('#mb-' + m[0]).style.width = meter[m[0]] + '%'; $('#mv-' + m[0]).textContent = meter[m[0]] + '%'; }); }
+  function stepper() { $('#stepper').querySelectorAll('span').forEach((s, i) => s.className = i < si ? 'done' : i === si ? 'now' : ''); }
+  function highlight(ids) { svg.querySelectorAll('.organ').forEach(g => { g.classList.toggle('glow', ids.includes(g.dataset.id)); }); }
+  function placeFood(x, y) { foodEl.setAttribute('x', x); foodEl.setAttribute('y', y); }
+  const idxOf = key => JP.findIndex(p => p[2] === key);
+
+  function moveTo(targetIdx, cb) {
+    // build list of points from pos to targetIdx
+    const pts = JP.slice(pos, targetIdx + 1);
+    const segs = []; let total = 0;
+    for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); segs.push(d); total += d; }
+    if (!total) { pos = targetIdx; return cb(); }
+    const dur = Math.max(900, total / 0.13); let t0 = null;
+    sfx.gulp();
+    function frame(ts) {
+      if (!t0) t0 = ts; let dist = Math.min(1, (ts - t0) / dur) * total;
+      let i = 0; while (i < segs.length - 1 && dist > segs[i]) { dist -= segs[i]; i++; }
+      const f = segs[i] ? Math.min(1, dist / segs[i]) : 1;
+      placeFood(pts[i][0] + (pts[i + 1][0] - pts[i][0]) * f, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * f);
+      if ((ts - t0) < dur) requestAnimationFrame(frame); else { pos = targetIdx; cb(); }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function chooseFood() {
+    highlight([]);
+    side.innerHTML = say(tx("I'm hungry! 🐶 Pick a food and we'll follow it all the way through the body. At every stop, answer 2 questions to keep the journey going!", 'Aku lapar! 🐶 Pilih makanan, lalu kita ikuti perjalanannya di dalam tubuh. Di setiap pemberhentian, jawab 2 pertanyaan agar perjalanan berlanjut!'))
+      + `<div class="foods">${FOODS.map(f => `<button class="food" data-f="${f[0]}">${f[0]}<small>${tx(f[1], f[2])}</small></button>`).join('')}</div>`;
+    side.querySelectorAll('.food').forEach(b => b.onclick = () => { food = b.dataset.f; foodEl.textContent = food; foodEl.setAttribute('font-size', STATIONS[0].size); sfx.gulp(); showStation(); });
+  }
+  function showStation() {
+    const st = STATIONS[si]; stepper(); highlight(st.org);
+    foodEl.setAttribute('font-size', st.size);
+    side.innerHTML = `<h3 style="margin:0 0 8px;color:var(--coral-d)">📍 ${tx('Stop', 'Pemberhentian')} ${si + 1}/6 · ${L(st.n)}</h3>` + say(L(st.t)) + `<button class="btn teal" id="goQ">${tx('Quiz time!', 'Waktunya kuis!')} ❓</button>`;
+    $('#goQ').onclick = () => ask(0); scrollToEl(side);
+  }
+  function ask(j) {
+    const st = STATIONS[si], q = st.qs[j];
+    const opts = shuffle(q.a.map((a, k) => ({ t: L(a), ok: k === 0 })));
+    side.innerHTML = `<h3 style="margin:0 0 8px;color:var(--coral-d)">📍 ${L(st.n)} · ${tx('Question', 'Soal')} ${j + 1}/2</h3><p class="q">${L(q.q)}</p>
+      <div class="opts">${opts.map((o, k) => `<button class="opt" data-k="${k}">${o.t}</button>`).join('')}</div><div id="fb"></div>`;
+    side.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+      const o = opts[b.dataset.k];
+      side.querySelectorAll('.opt').forEach((x, k) => { x.disabled = true; if (opts[k].ok) x.classList.add('right'); });
+      if (o.ok) { score += 100; correct++; sfx.ok(); floatText(b, '+100'); } else { b.classList.add('wrong'); sfx.bad(); }
+      $('#sc').textContent = tx('Score', 'Skor') + ': ' + score;
+      $('#fb').innerHTML = `<div class="ex ${o.ok ? 'good' : 'nope'}"><b>${o.ok ? tx('Correct! 🎉', 'Benar! 🎉') : tx('Not quite!', 'Belum tepat!')}</b> ${L(q.ex)}</div>
+        <button class="btn" style="margin-top:12px" id="nx">${j === 0 ? tx('Next question', 'Soal berikutnya') : (si === STATIONS.length - 1 ? tx('Finish the journey! 🚽', 'Selesaikan perjalanan! 🚽') : tx('Continue the journey', 'Lanjutkan perjalanan'))} →</button>`;
+      $('#nx').onclick = () => j === 0 ? ask(1) : finishStation();
+    });
+  }
+  function finishStation() {
+    const st = STATIONS[si]; Object.assign(meter, st.meter); drawMeter();
+    if (st.poop) foodEl.textContent = '💩';
+    si++;
+    if (si >= STATIONS.length) {
+      stepper(); highlight([]);
+      side.innerHTML = say(tx('Bye-bye, leftovers! 💩👋 The journey took about 1–3 days in real life!', 'Dadah, sisa makanan! 💩👋 Di tubuh sungguhan, perjalanan ini memakan waktu sekitar 1–3 hari!'));
+      moveTo(JP.length - 1, () => { foodEl.setAttribute('font-size', 0); levelComplete(2, score, starsFrom(correct / 12), tx(`Correct answers: ${correct}/12`, `Jawaban benar: ${correct}/12`)); });
+      return;
+    }
+    side.innerHTML = say(tx('Here we go! Next stop: ', 'Ayo berangkat! Pemberhentian berikutnya: ') + '<b>' + L(STATIONS[si].n) + '</b>');
+    moveTo(idxOf(STATIONS[si].key), showStation);
+  }
+  drawMeter(); stepper();
+  foodEl.textContent = food; placeFood(JP[0][0], JP[0][1]);
+  chooseFood();
+}
+
+/* ============ LEVEL 3: Enzyme Lab ============ */
+const P = (a, b, c, d) => [{ en: a, id: b }, { en: c, id: d }];
+const SETS = [
+  { t: { en: 'Round 1 · Enzymes & digestive juices', id: 'Ronde 1 · Enzim & getah pencernaan' }, pairs: [
+    P('Salivary amylase', 'Amilase ludah (ptialin)', 'Starch → maltose, in the mouth', 'Amilum → maltosa, di mulut'),
+    P('Pepsin', 'Pepsin', 'Starts digesting protein in the stomach', 'Mulai mencerna protein di lambung'),
+    P('Hydrochloric acid (HCl)', 'Asam klorida (HCl)', 'Kills germs & activates pepsin', 'Membunuh kuman & mengaktifkan pepsin'),
+    P('Bile', 'Empedu', 'Emulsifies fat into tiny droplets', 'Mengemulsikan lemak menjadi butiran kecil'),
+    P('Lipase', 'Lipase', 'Fat → fatty acids + glycerol', 'Lemak → asam lemak + gliserol'),
+    P('Trypsin', 'Tripsin', 'Digests protein in the small intestine (made by the pancreas)', 'Mencerna protein di usus halus (dibuat oleh pankreas)')] },
+  { t: { en: 'Round 2 · Organs & their jobs', id: 'Ronde 2 · Organ & tugasnya' }, pairs: [
+    P('Mouth', 'Mulut', 'Chews food and mixes it with saliva', 'Mengunyah makanan dan mencampurnya dengan ludah'),
+    P('Esophagus', 'Kerongkongan', 'Pushes food down by peristalsis', 'Mendorong makanan dengan gerak peristaltik'),
+    P('Stomach', 'Lambung', 'Churns food into chyme', 'Mengaduk makanan menjadi kimus'),
+    P('Liver', 'Hati', 'Makes bile', 'Menghasilkan empedu'),
+    P('Gallbladder', 'Kantong empedu', 'Stores bile', 'Menyimpan empedu'),
+    P('Small intestine', 'Usus halus', 'Absorbs nutrients through villi', 'Menyerap sari makanan melalui vili'),
+    P('Large intestine', 'Usus besar', 'Absorbs water & minerals', 'Menyerap air & mineral')] },
+  { t: { en: 'Round 3 · Teeth & nutrients', id: 'Ronde 3 · Gigi & zat makanan' }, pairs: [
+    P('🦷 Incisors', '🦷 Gigi seri', 'Cut and bite food', 'Memotong dan menggigit makanan'),
+    P('🦷 Canines', '🦷 Gigi taring', 'Tear food', 'Mengoyak (merobek) makanan'),
+    P('🦷 Molars', '🦷 Gigi geraham', 'Grind and crush food', 'Menggiling dan menghaluskan makanan'),
+    P('🍚 Carbohydrates', '🍚 Karbohidrat', 'Glucose', 'Glukosa'),
+    P('🍗 Proteins', '🍗 Protein', 'Amino acids', 'Asam amino'),
+    P('🧈 Fats', '🧈 Lemak', 'Fatty acids + glycerol', 'Asam lemak + gliserol')] }
+];
+function startL3() {
+  window.scrollTo(0, 0);
+  let r = 0, score = 0, totalPairs = SETS.reduce((s, x) => s + x.pairs.length, 0), totalMistakes = 0;
+  function round() {
+    const set = SETS[r]; let selL = null, selR = null, done = 0, mistakes = 0, lock = false;
+    const left = shuffle(set.pairs.map((p, i) => ({ i, t: L(p[0]) }))), right = shuffle(set.pairs.map((p, i) => ({ i, t: L(p[1]) })));
+    app.innerHTML = `<div class="lvhead"><h2>🧪 ${tx('Level 3 · Enzyme Lab', 'Level 3 · Lab Enzim')}</h2><div class="spacer"></div><div class="pill" id="sc">${tx('Score', 'Skor')}: ${score}</div></div>
+      <div class="card">
+        ${say(r === 0 ? tx("Welcome to my lab! 🥼 Tap an item on the left, then its matching job on the right. Fewer mistakes = more points!", 'Selamat datang di labku! 🥼 Ketuk satu kotak di kiri, lalu pasangan tugasnya di kanan. Makin sedikit salah = makin banyak poin!') : tx('Great work! Ready for the next round?', 'Hebat! Siap untuk ronde berikutnya?'))}
+        <h3 style="margin:0 0 4px">${L(set.t)}</h3>
+        <p style="margin:0 0 12px;font-weight:700;color:var(--muted)">${tx('Matched', 'Cocok')}: <span id="dn">0</span>/${set.pairs.length} · ${tx('Mistakes', 'Kesalahan')}: <span id="mk">0</span></p>
+        <div class="match"><div class="col">${left.map(x => `<button class="mbtn left" data-s="L" data-i="${x.i}">${x.t}</button>`).join('')}</div>
+        <div class="col">${right.map(x => `<button class="mbtn" data-s="R" data-i="${x.i}">${x.t}</button>`).join('')}</div></div>
+      </div>`;
+    app.querySelectorAll('.mbtn').forEach(b => b.onclick = () => {
+      if (lock || b.classList.contains('done')) return;
+      sfx.click();
+      if (b.dataset.s === 'L') { if (selL) selL.classList.remove('sel'); selL = b; } else { if (selR) selR.classList.remove('sel'); selR = b; }
+      b.classList.add('sel');
+      if (selL && selR) {
+        const a = selL, c = selR; selL = selR = null;
+        if (a.dataset.i === c.dataset.i) {
+          sfx.ok(); [a, c].forEach(x => { x.classList.remove('sel'); x.classList.add('done'); }); done++; score += 100; floatText(c, '+100');
+          $('#dn').textContent = done;
+          if (done === set.pairs.length) setTimeout(() => { r++; if (r < SETS.length) round(); else finish(); }, 800);
+        } else {
+          sfx.bad(); mistakes++; totalMistakes++; score = Math.max(0, score - 30); lock = true;
+          [a, c].forEach(x => { x.classList.remove('sel'); x.classList.add('err'); });
+          setTimeout(() => { [a, c].forEach(x => x.classList.remove('err')); lock = false; }, 450);
+          $('#mk').textContent = mistakes;
+        }
+        $('#sc').textContent = tx('Score', 'Skor') + ': ' + score;
+      }
+    });
+  }
+  function finish() { levelComplete(3, score, starsFrom(score / (totalPairs * 100)), tx(`Total mistakes: ${totalMistakes}`, `Total kesalahan: ${totalMistakes}`)); }
+  round();
+}
+
+/* ============ LEVEL 4: Trivia Blitz ============ */
+const TF = (qen, qid, ans, exen, exid) => Q(qen, qid, ans ? [['True', 'Benar'], ['False', 'Salah']] : [['False', 'Salah'], ['True', 'Benar']], exen, exid);
+const TRIVIA = [
+  Q('Roughly how long is the small intestine of an adult?', 'Kira-kira berapa panjang usus halus orang dewasa?', [['About 6 metres', 'Sekitar 6 meter'], ['About 60 cm', 'Sekitar 60 cm'], ['About 1.5 metres', 'Sekitar 1,5 meter'], ['About 20 metres', 'Sekitar 20 meter']],
+    "It's called 'small' because it's narrow — but it's the longest part of the digestive tract!", "Disebut 'halus' (kecil) karena diameternya sempit — padahal ini bagian terpanjang saluran pencernaan!"),
+  Q('What is the hardest substance in the human body?', 'Apa zat paling keras di tubuh manusia?', [['Tooth enamel', 'Email gigi'], ['Bone', 'Tulang'], ['Fingernails', 'Kuku'], ['Stomach lining', 'Dinding lambung']],
+    'Enamel covers the crown of your teeth. It is even harder than bone — but sugary drinks and acids can still damage it!', 'Email melapisi mahkota gigi. Email lebih keras daripada tulang — tetapi minuman manis dan asam tetap bisa merusaknya!'),
+  Q('About how much saliva do you make every day?', 'Kira-kira berapa banyak air ludah yang kamu hasilkan setiap hari?', [['About 1 litre', 'Sekitar 1 liter'], ['About 1 spoonful', 'Sekitar 1 sendok'], ['About 10 litres', 'Sekitar 10 liter'], ['About 50 litres', 'Sekitar 50 liter']],
+    "That's roughly 4–6 glasses of spit a day — mostly while you're awake and eating!", 'Itu kira-kira 4–6 gelas ludah sehari — sebagian besar saat kamu bangun dan makan!'),
+  TF('You can still swallow food while standing on your head.', 'Kamu tetap bisa menelan makanan walaupun sedang berdiri terbalik.', true,
+    'True! Peristalsis — waves of muscle — pushes food along, so gravity is not needed. Astronauts can eat in space too!', 'Benar! Gerak peristaltik mendorong makanan, jadi tidak perlu gravitasi. Astronaut juga bisa makan di luar angkasa!'),
+  Q('Stomach acid is very strong. Its pH is about…', 'Asam lambung sangat kuat. pH-nya sekitar…', [['pH 2 (very acidic)', 'pH 2 (sangat asam)'], ['pH 7 (neutral)', 'pH 7 (netral)'], ['pH 9 (slightly basic)', 'pH 9 (agak basa)'], ['pH 13 (very basic)', 'pH 13 (sangat basa)']],
+    'Stomach acid has a pH of about 1.5–3.5 — similar to lemon juice or even stronger!', 'Asam lambung memiliki pH sekitar 1,5–3,5 — mirip air jeruk nipis, bahkan lebih kuat!'),
+  Q("Why doesn't the stomach digest itself?", 'Mengapa lambung tidak mencerna dirinya sendiri?', [['A thick layer of mucus protects it', 'Lapisan lendir tebal melindunginya'], ['It is made of bone', 'Lambung terbuat dari tulang'], ['The acid switches off when it is empty', 'Asamnya mati saat lambung kosong'], ['It has no cells', 'Lambung tidak memiliki sel']],
+    'Mucus forms a protective shield, and the lining cells are replaced every few days. When this protection fails, gastritis or ulcers can happen.', 'Lendir membentuk lapisan pelindung, dan sel dinding lambung diganti setiap beberapa hari. Jika perlindungan ini gagal, bisa terjadi radang lambung atau tukak.'),
+  Q("The rumbling 'growling' sound your tummy makes is called…", "Suara 'keroncongan' perut disebut…", [['Borborygmi', 'Borborigmi'], ['Hiccups', 'Cegukan'], ['Burping', 'Sendawa'], ['Gastritis', 'Gastritis']],
+    'Borborygmi is the sound of gas and liquid being squeezed through your intestines by peristalsis. It is louder when your stomach is empty!', 'Borborigmi adalah suara gas dan cairan yang diremas melalui usus oleh gerak peristaltik. Suaranya lebih keras saat perut kosong!'),
+  Q('What is the largest internal organ in the body?', 'Apa organ dalam terbesar di tubuh?', [['Liver', 'Hati'], ['Stomach', 'Lambung'], ['Pancreas', 'Pankreas'], ['Heart', 'Jantung']],
+    'An adult liver weighs about 1.5 kg and does over 500 jobs, including making bile!', 'Hati orang dewasa beratnya sekitar 1,5 kg dan memiliki lebih dari 500 tugas, termasuk membuat empedu!'),
+  Q('About how long does food take to travel through the whole digestive tract?', 'Kira-kira berapa lama makanan melewati seluruh saluran pencernaan?', [['About 1–3 days', 'Sekitar 1–3 hari'], ['About 10 minutes', 'Sekitar 10 menit'], ['About 1 hour', 'Sekitar 1 jam'], ['About 2 weeks', 'Sekitar 2 minggu']],
+    'Most of that time is spent in the large intestine, where water is slowly absorbed.', 'Sebagian besar waktu itu dihabiskan di usus besar, tempat air diserap perlahan-lahan.'),
+  Q('Which small pouch attached to the large intestine can become inflamed (appendicitis)?', 'Kantong kecil di usus besar yang bisa meradang (radang usus buntu) adalah…', [['Appendix', 'Usus buntu (apendiks)'], ['Gallbladder', 'Kantong empedu'], ['Tonsil', 'Amandel'], ['Pancreas', 'Pankreas']],
+    'Appendicitis causes pain in the lower right of the belly and usually needs surgery.', 'Radang usus buntu menyebabkan nyeri di perut kanan bawah dan biasanya perlu dioperasi.'),
+  Q("Inflammation of the stomach lining, often called 'maag' in Indonesia, is…", "Peradangan dinding lambung, yang sering disebut 'maag', adalah…", [['Gastritis', 'Gastritis'], ['Appendicitis', 'Apendisitis'], ['Diarrhea', 'Diare'], ['Constipation', 'Sembelit']],
+    'Eating on time, avoiding too much spicy or acidic food, and managing stress can help prevent gastritis.', 'Makan tepat waktu, tidak berlebihan makan pedas atau asam, dan mengelola stres dapat membantu mencegah gastritis.'),
+  Q('Eating plenty of fibre (vegetables and fruit) and drinking water helps prevent…', 'Makan banyak serat (sayur dan buah) serta minum air membantu mencegah…', [['Constipation', 'Sembelit (konstipasi)'], ['Hiccups', 'Cegukan'], ['Colour blindness', 'Buta warna'], ['Tooth growth', 'Pertumbuhan gigi']],
+    'Fibre keeps feces soft and helps the intestines move things along.', 'Serat membuat feses tetap lunak dan membantu usus menggerakkan sisa makanan.'),
+  Q('Roughly how many bacteria live in your gut?', 'Kira-kira berapa banyak bakteri yang hidup di ususmu?', [['Tens of trillions', 'Puluhan triliun'], ['About 100', 'Sekitar 100'], ['About 1,000', 'Sekitar 1.000'], ['None at all', 'Tidak ada sama sekali']],
+    'Scientists estimate around 38 trillion bacteria live in your body — most of them in your large intestine!', 'Ilmuwan memperkirakan sekitar 38 triliun bakteri hidup di tubuhmu — sebagian besar di usus besar!'),
+  Q('If you spread out the inner surface of the small intestine, it would cover about…', 'Jika permukaan dalam usus halus dibentangkan, luasnya kira-kira seperti…', [['A small room (about 30 m²)', 'Sebuah kamar kecil (sekitar 30 m²)'], ['A postage stamp', 'Sebuah perangko'], ['A school desk', 'Sebuah meja sekolah'], ['Ten football fields', 'Sepuluh lapangan sepak bola']],
+    'Folds, villi and even tinier microvilli make the surface area huge, so nutrients can be absorbed quickly.', 'Lipatan, vili, dan mikrovili yang lebih kecil lagi membuat permukaannya sangat luas sehingga sari makanan cepat diserap.'),
+  Q('Food usually stays in the stomach for about…', 'Makanan biasanya berada di lambung selama sekitar…', [['2–4 hours', '2–4 jam'], ['10 seconds', '10 detik'], ['2 days', '2 hari'], ['1 week', '1 minggu']],
+    'Fatty foods stay longer in the stomach than sugary foods — that is why they keep you full longer.', 'Makanan berlemak lebih lama di lambung daripada makanan manis — itulah sebabnya kamu kenyang lebih lama.'),
+  Q('Which of these does NOT need to be digested before it is absorbed?', 'Manakah yang TIDAK perlu dicerna sebelum diserap?', [['Water', 'Air'], ['Starch', 'Amilum'], ['Protein', 'Protein'], ['Fat', 'Lemak']],
+    'Water, vitamins and minerals are small enough to be absorbed directly. Big molecules like starch, protein and fat must be broken down first.', 'Air, vitamin, dan mineral cukup kecil untuk langsung diserap. Molekul besar seperti amilum, protein, dan lemak harus dipecah terlebih dahulu.'),
+  Q('How many permanent teeth does an adult usually have (including wisdom teeth)?', 'Berapa jumlah gigi tetap orang dewasa (termasuk gigi bungsu)?', [['32', '32'], ['20', '20'], ['24', '24'], ['40', '40']],
+    'Children have 20 baby (milk) teeth. Adults have 32 permanent teeth if all 4 wisdom teeth grow.', 'Anak-anak memiliki 20 gigi susu. Orang dewasa memiliki 32 gigi tetap jika keempat gigi bungsu tumbuh.'),
+  TF('Starch digestion begins in the stomach.', 'Pencernaan amilum dimulai di lambung.', false,
+    'False! It begins in the mouth, thanks to salivary amylase.', 'Salah! Pencernaan amilum dimulai di mulut, berkat enzim amilase dalam ludah.'),
+  Q('Proteins are finally broken down into…', 'Protein akhirnya dipecah menjadi…', [['Amino acids', 'Asam amino'], ['Glucose', 'Glukosa'], ['Fatty acids', 'Asam lemak'], ['Vitamins', 'Vitamin']],
+    'Your body uses amino acids to build muscles, enzymes and much more.', 'Tubuhmu menggunakan asam amino untuk membangun otot, enzim, dan banyak lagi.'),
+  Q('Diarrhea is dangerous mainly because the body loses…', 'Diare berbahaya terutama karena tubuh kehilangan…', [['Water and salts (dehydration)', 'Air dan garam (dehidrasi)'], ['Teeth', 'Gigi'], ['Bile', 'Empedu'], ['Bone', 'Tulang']],
+    'Oral rehydration salts (oralit) and plenty of fluids help replace what is lost.', 'Oralit dan banyak minum cairan membantu menggantikan cairan yang hilang.'),
+  TF('Bile is an enzyme.', 'Empedu adalah enzim.', false,
+    'False! Bile contains no enzymes. It emulsifies fat (breaks it into droplets) so lipase can work faster.', 'Salah! Empedu tidak mengandung enzim. Empedu mengemulsikan lemak (memecahnya menjadi butiran) agar lipase bekerja lebih cepat.'),
+  Q('The ring of muscle that controls food leaving the stomach is the…', 'Cincin otot yang mengatur keluarnya makanan dari lambung adalah…', [['Pyloric sphincter', 'Sfingter pilorus'], ['Epiglottis', 'Epiglotis'], ['Villus', 'Vili'], ['Appendix', 'Usus buntu']],
+    'The pyloric sphincter lets chyme into the small intestine a little at a time.', 'Sfingter pilorus mengalirkan kimus ke usus halus sedikit demi sedikit.'),
+  TF('Most nutrients are absorbed in the small intestine.', 'Sebagian besar sari makanan diserap di usus halus.', true,
+    'True! The large intestine mainly absorbs water and minerals.', 'Benar! Usus besar terutama menyerap air dan mineral.'),
+  Q('What do we call the soupy mix of food and gastric juice that leaves the stomach?', 'Apa nama bubur campuran makanan dan getah lambung yang keluar dari lambung?', [['Chyme', 'Kimus'], ['Bolus', 'Bolus'], ['Bile', 'Empedu'], ['Feces', 'Feses']],
+    'Bolus = the ball of chewed food from the mouth. Chyme = the soupy mix from the stomach.', 'Bolus = gumpalan makanan dari mulut. Kimus = bubur makanan dari lambung.')
+];
+function startL4() {
+  window.scrollTo(0, 0);
+  const qs = shuffle(TRIVIA).slice(0, 12), TIME = 20;
+  let i = 0, score = 0, correct = 0, streak = 0, best = 0, timer = null;
+  app.innerHTML = `<div class="lvhead"><h2>⚡ ${tx('Level 4 · Trivia Blitz', 'Level 4 · Kuis Kilat')}</h2><div class="spacer"></div><div class="pill" id="sc">${tx('Score', 'Skor')}: 0</div></div>
+    <div class="card" style="max-width:720px;margin:0 auto" id="box"></div>`;
+  const box = $('#box');
+  function intro() {
+    box.innerHTML = say(tx("Time for my favourite part — weird and wonderful gut trivia! 🤓 12 questions, 20 seconds each. Answer fast for bonus points and build a streak 🔥 for even more!", 'Saatnya bagian favoritku — kuis fakta unik pencernaan! 🤓 12 soal, masing-masing 20 detik. Jawab cepat untuk poin bonus dan buat rentetan benar 🔥 untuk poin lebih banyak!'))
+      + `<button class="btn teal" id="go">${tx('Start!', 'Mulai!')} ⚡</button>`;
+    $('#go').onclick = show;
+  }
+  function show() {
+    const q = qs[i], opts = shuffle(q.a.map((a, k) => ({ t: L(a), ok: k === 0 })));
+    if (opts.length === 2) { const T = tx('True', 'Benar'); opts.sort((a, b) => (b.t === T) - (a.t === T)); } // keep True first
+    box.innerHTML = `<div class="row" style="justify-content:space-between;font-weight:800"><span>${tx('Question', 'Soal')} ${i + 1}/12</span><span class="streak">${streak >= 2 ? '🔥 ' + tx('Streak', 'Rentetan') + ' ×' + streak : ''}</span><span id="tl">${TIME}s</span></div>
+      <div class="timer"><i id="tb"></i></div>
+      <p class="q">${L(q.q)}</p><div class="opts">${opts.map((o, k) => `<button class="opt" data-k="${k}">${o.t}</button>`).join('')}</div><div id="fb"></div>`;
+    const start = performance.now(), tb = $('#tb'), tl = $('#tl');
+    let answered = false;
+    function tick() {
+      const left = Math.max(0, TIME - (performance.now() - start) / 1000);
+      tb.style.width = (left / TIME * 100) + '%'; tl.textContent = Math.ceil(left) + 's';
+      if (left <= 0) return answer(null, 0);
+      timer = requestAnimationFrame(tick);
+    }
+    function answer(btn, left) {
+      if (answered) return; answered = true; cancelAnimationFrame(timer);
+      const o = btn ? opts[btn.dataset.k] : null;
+      box.querySelectorAll('.opt').forEach((x, k) => { x.disabled = true; if (opts[k].ok) x.classList.add('right'); });
+      let msg;
+      if (o && o.ok) {
+        streak++; best = Math.max(best, streak); correct++;
+        const pts = 100 + Math.round(left * 5) + (streak >= 2 ? (streak - 1) * 20 : 0);
+        score += pts; sfx.ok(); floatText(btn, '+' + pts);
+        msg = `<b>${tx('Correct!', 'Benar!')} +${pts}</b>`;
+      } else {
+        streak = 0; sfx.bad(); if (btn) btn.classList.add('wrong');
+        msg = `<b>${btn ? tx('Oops!', 'Ups!') : tx("⏰ Time's up!", '⏰ Waktu habis!')}</b>`;
+      }
+      $('#sc').textContent = tx('Score', 'Skor') + ': ' + score;
+      $('#fb').innerHTML = `<div class="ex ${o && o.ok ? 'good' : 'nope'}">${msg} 💡 <i>${tx('Did you know?', 'Tahukah kamu?')}</i> ${L(q.ex)}</div>
+        <button class="btn" style="margin-top:12px" id="nx">${i < 11 ? tx('Next', 'Lanjut') + ' →' : tx('Finish', 'Selesai') + ' 🏁'}</button>`;
+      $('#nx').onclick = () => { i++; i < 12 ? show() : levelComplete(4, score, starsFrom(correct / 12), tx(`Correct: ${correct}/12 · Best streak: ${best} 🔥`, `Benar: ${correct}/12 · Rentetan terbaik: ${best} 🔥`)); };
+    }
+    box.querySelectorAll('.opt').forEach(b => b.onclick = () => answer(b, Math.max(0, TIME - (performance.now() - start) / 1000)));
+    timer = requestAnimationFrame(tick);
+  }
+  intro();
+}
+
+/* ============ CERTIFICATE ============ */
+function renderCert() {
+  updateHeader(); window.scrollTo(0, 0);
+  const st = totalStars();
+  const rank = st >= 12 ? tx('🏆 Gut Guru', '🏆 Master Pencernaan') : st >= 9 ? tx('🥇 Tummy Expert', '🥇 Ahli Perut') : st >= 5 ? tx('🔎 Digestion Detective', '🔎 Detektif Pencernaan') : tx('🌱 Gut Rookie', '🌱 Pemula Pencernaan');
+  const date = new Date().toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  app.innerHTML = `<div class="card cert">
+    ${bubbleSVG('bubble-big')}
+    <h1>${tx('Certificate of Digestion Mastery', 'Sertifikat Penguasaan Sistem Pencernaan')}</h1>
+    <p style="font-weight:700;margin:0">${tx('This certifies that', 'Diberikan kepada')}</p>
+    <div class="who">${(playerName || tx('Super Scientist', 'Ilmuwan Hebat')).replace(/</g, '&lt;')}</div>
+    <p style="font-weight:700;margin:0">${tx("has travelled through the digestive system in Bubble's Tummy Trek and earned the rank of", 'telah menjelajahi sistem pencernaan dalam Petualangan Perut Bubble dan meraih gelar')}</p>
+    <div class="rank">${rank}</div>
+    <table>${LEVELS.map(l => { const b = store.best[l.n]; return `<tr><td>${l.emo} ${L(l.t)}</td><td>${b ? starStr(b.stars) : '—'}</td><td>${b ? b.score : 0}</td></tr>`; }).join('')}
+      <tr><td><b>${tx('Total', 'Total')}</b></td><td><b>${st}/12 ⭐</b></td><td><b>${totalScore()}</b></td></tr></table>
+    <p style="font-weight:700;color:var(--muted)">${date} · ${tx('Signed', 'Ditandatangani')}: Bubble 🐾</p>
+    <div class="row noprint" style="justify-content:center">
+      <button class="btn teal" onclick="window.print()">🖨️ ${tx('Print / Save PDF', 'Cetak / Simpan PDF')}</button>
+      <button class="btn ghost" id="cMenu">🏠 ${tx('Menu', 'Menu')}</button>
+      <button class="btn ghost" id="cReset">🗑️ ${tx('Reset progress', 'Hapus progres')}</button>
+    </div>
+    ${playerName ? '' : `<p class="noprint" style="font-weight:700;color:var(--coral-d)">✏️ ${tx('Tip: type your name on the menu page to put it on the certificate!', 'Tips: ketik namamu di halaman menu agar tercantum di sertifikat!')}</p>`}
+  </div>`;
+  if (st >= 9) confetti();
+  $('#cMenu').onclick = renderHome;
+  $('#cReset').onclick = () => { if (confirm(tx('Erase all stars and scores?', 'Hapus semua bintang dan skor?'))) { store.best = {}; persist(); renderHome(); } };
+}
+
+/* ============ boot ============ */
+$('#homeBtn').onclick = () => { $('#modal').classList.remove('show'); renderHome(); };
+$('#logo').onclick = $('#homeBtn').onclick;
+$('#soundBtn').onclick = () => { muted = !muted; persist(); updateHeader(); if (!muted) sfx.pop(); };
+renderHome();
+</script>
+</body>
+</html>
